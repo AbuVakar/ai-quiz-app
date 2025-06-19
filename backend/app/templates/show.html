@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizCraft - Library</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='card.css') }}">
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-gray-900 to-fuchsia-900 min-h-screen flex flex-col">
+  <header class="w-full bg-white bg-opacity-10 backdrop-blur-md shadow-md py-4 px-8 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl font-extrabold text-purple-400">QuizCraft</span>
+      <span class="hidden md:inline text-xs text-purple-200 bg-purple-800 px-2 py-1 rounded ml-2">Library</span>
+    </div>
+    <nav class="flex gap-6 text-lg">
+      <a href="{{ url_for('main.index') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Home</a>
+      <a href="{{ url_for('main.mcq') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Quiz</a>
+      <a href="{{ url_for('main.show') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Library</a>
+      <a href="{{ url_for('main.dashboard') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Dashboard</a>
+    </nav>
+  </header>
+  <main class="flex-1 flex flex-col items-center justify-center px-4">
+    <div class="bg-white bg-opacity-10 modern-shadow rounded-2xl p-10 w-full max-w-xl mt-12">
+      <h1 class="text-3xl font-bold mb-8 text-center text-yellow-400">Your Quiz Library</h1>
+      <!-- Library content goes here -->
+    </div>
+  </main>
+  <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+    &copy; 2025 QuizCraft. All rights reserved.
+  </footer>
+</body>
+</html>

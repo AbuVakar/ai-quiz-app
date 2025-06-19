@@ -1,0 +1,66 @@
+<!-- Migrated from old mcq_env/templates/history.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History | QuizCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-gray-900 to-fuchsia-900 min-h-screen flex flex-col">
+    <header class="w-full bg-white bg-opacity-10 backdrop-blur-md shadow-md py-4 px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-extrabold text-purple-400">QuizCraft</span>
+      </div>
+      <nav class="flex gap-6 text-lg">
+        <a href="/" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Home</a>
+        <a href="/history" class="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 hover:text-black transition-all shadow">History</a>
+      </nav>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center px-4">
+      <div class="bg-white bg-opacity-10 modern-shadow rounded-2xl p-10 w-full max-w-2xl mt-12">
+          <h1 class="text-3xl font-bold mb-8 text-center text-yellow-400 drop-shadow">Your MCQ Generation History</h1>
+          {% if histories|length > 0 %}
+            <form method="POST" action="{{ url_for('main.clear_history') }}" onsubmit="return confirm('Are you sure you want to clear your entire quiz history? This cannot be undone.');" class="mb-6 flex justify-end">
+              <button type="submit" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-yellow-400 hover:text-black transition">
+                <i class="fas fa-trash-alt"></i> Clear History
+              </button>
+            </form>
+          {% endif %}
+          {% if histories %}
+            <ul class="space-y-6">
+              {% for h in histories %}
+                <li class="bg-gray-900/80 rounded-xl p-6 shadow-lg">
+                  <div class="mb-2"><strong class="text-purple-300">Type:</strong> <span class="text-yellow-200">{{ h.source_type }}</span></div>
+                  <div class="mb-2"><strong class="text-purple-300">Input:</strong> <span class="text-yellow-200">{{ h.input_content }}</span></div>
+                  <div class="mb-2"><strong class="text-purple-300">Timestamp:</strong> <span class="text-yellow-200">{{ h.timestamp }}</span></div>
+                  <div><strong class="text-purple-300">Generated MCQs:</strong>
+                    <ul class="ml-6 mt-2 space-y-2">
+                      {% for mcq in h.mcqs %}
+                        <li class="bg-gray-800 rounded p-3">
+                          <div class="font-bold text-yellow-300 mb-1">Q: {{ mcq.question }}</div>
+                          <div class="mb-1"><span class="font-semibold text-purple-200">Options:</span>
+                            <ul class="list-disc ml-6">
+                              {% for option in mcq.options %}
+                                <li class="text-white">{{ option }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                          <div class="text-green-400 font-semibold">Answer: {{ mcq.answer }}</div>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-purple-200 text-center">No history found.</p>
+          {% endif %}
+      </div>
+    </main>
+    <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+      &copy; 2025 QuizCraft. All rights reserved.
+    </footer>
+</body>
+</html>

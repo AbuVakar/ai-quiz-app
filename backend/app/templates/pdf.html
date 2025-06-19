@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to MCQ | QuizCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-gray-900 to-fuchsia-900 min-h-screen flex flex-col">
+    <header class="w-full bg-white bg-opacity-10 backdrop-blur-md shadow-md py-4 px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-extrabold text-purple-400">QuizCraft</span>
+        <span class="hidden md:inline text-xs text-purple-200 bg-purple-800 px-2 py-1 rounded ml-2">PDF to MCQ</span>
+      </div>
+      <nav class="flex gap-6 text-lg">
+        <a href="/" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Home</a>
+        <a href="/pdf" class="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 hover:text-black transition-all shadow">PDF to MCQ</a>
+        <a href="/youtube" class="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 hover:text-black transition-all shadow">YouTube to MCQ</a>
+      </nav>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center px-4">
+      <div class="bg-white bg-opacity-10 modern-shadow rounded-2xl p-10 w-full max-w-xl mt-12">
+          <h1 class="text-3xl font-bold mb-8 text-center text-yellow-400 drop-shadow">Generate MCQs from PDF</h1>
+          <form id="pdf-mcq-form" class="space-y-6" enctype="multipart/form-data">
+              <input type="file" id="pdfFile" accept="application/pdf" class="w-full border-2 border-purple-400 bg-gray-900 text-white rounded-lg p-4" required />
+              <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg p-3 font-bold text-lg hover:from-yellow-400 hover:to-yellow-600 transition-all shadow-lg">Generate MCQs</button>
+          </form>
+          <div id="mcqResults" class="mt-10"></div>
+      </div>
+    </main>
+    <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+      &copy; 2025 QuizCraft. All rights reserved.
+    </footer>
+    <script>
+    function showLoader() {
+      document.getElementById('mcqResults').innerHTML = `
+        <div class=\"flex flex-col items-center justify-center py-8\">
+          <div class=\"loader mb-4\">
+            <div class=\"w-16 h-16 border-8 border-yellow-400 border-t-purple-500 border-b-fuchsia-500 rounded-full animate-spin\"></div>
+          </div>
+          <div class=\"text-yellow-300 text-lg font-bold animate-pulse\">Generating MCQs...</div>
+        </div>`;
+    }
+    function showConfetti() {
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#fbbf24', '#a21caf', '#f472b6', '#22d3ee', '#f59e42', '#fff']
+      });
+    }
+    document.getElementById('pdf-mcq-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('pdfFile');
+        if (!fileInput.files.length) {
+            document.getElementById('mcqResults').innerHTML = '<div class=\"text-red-400 font-semibold\">Please select a PDF file!</div>';
+            return;
+        }
+        showLoader();
+        const formData = new FormData();
+        formData.append('pdf_file', fileInput.files[0]);
+        try {
+            const response = await fetch('/generate_mcqs_from_pdf', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.mcqs && data.mcqs.length > 0) {
+                showConfetti();
+                let html = '<div class=\"text-2xl font-extrabold text-center text-green-400 mb-6 animate-bounce\">🎉 MCQs Ready! 🎉</div>';
+                html += '<div class=\"space-y-4\">';
+                data.mcqs.forEach((mcq, idx) => {
+                    html += `<div class='bg-gray-800 rounded-lg p-4'><div class='font-bold text-yellow-300 mb-2'>Q${idx+1}: ${mcq.question}</div><ul class='list-disc ml-6'>`;
+                    mcq.options.forEach(option => {
+                        html += `<li class='text-white'>${option}</li>`;
+                    });
+                    html += `</ul><div class='text-green-400 mt-2'>Answer: ${mcq.answer}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('mcqResults').innerHTML = html;
+            } else {
+                document.getElementById('mcqResults').innerHTML = '<div class=\"text-red-400 font-semibold\">No MCQs generated. Try a different PDF.</div>';
+            }
+        } catch (error) {
+            document.getElementById('mcqResults').innerHTML = '<div class=\"text-red-400 font-semibold\">Error generating MCQs.</div>';
+        }
+    });
+    </script>
+    <style>
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    </style>
+</body>
+</html>

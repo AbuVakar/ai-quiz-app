@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | QuizCraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-gray-900 to-fuchsia-900 min-h-screen flex flex-col">
+    <header class="w-full bg-white bg-opacity-10 backdrop-blur-md shadow-md py-4 px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-extrabold text-purple-400">QuizCraft</span>
+      </div>
+      <nav class="flex gap-6 text-lg">
+        <a href="/" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Home</a>
+        <a href="/login" class="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 hover:text-black transition-all shadow">Login</a>
+        <a href="/register" class="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 hover:text-black transition-all shadow">Register</a>
+      </nav>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center px-4">
+      <div class="relative bg-white/10 modern-shadow rounded-2xl p-10 w-full max-w-md mt-12 overflow-hidden">
+        <div class="absolute inset-0 animate-gradient-move bg-gradient-to-tr from-fuchsia-600 via-yellow-400 to-purple-700 opacity-40 blur-2xl z-0"></div>
+        <h1 class="text-4xl font-extrabold mb-8 text-center text-yellow-400 drop-shadow-lg tracking-tight">Sign In</h1>
+        <form method="POST" action="{{ url_for('main.login') }}" class="space-y-7 relative z-10">
+          {{ form.hidden_tag() }}
+          <div>
+            {{ form.username.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ form.username(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div>
+            {{ form.password.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ form.password(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div class="flex items-center">
+            {{ form.remember_me(class="form-checkbox h-5 w-5 text-fuchsia-600") }}
+            {{ form.remember_me.label(class="ml-2 text-sm text-purple-200") }}
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-fuchsia-600 via-yellow-400 to-purple-700 text-black font-extrabold rounded-xl p-3 text-lg shadow-xl hover:scale-105 hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-200">Login</button>
+        </form>
+        <p class="mt-6 text-purple-200 text-center relative z-10">Don't have an account? <a href="{{ url_for('main.signup') }}" class="text-yellow-400 underline font-bold hover:text-fuchsia-400 transition">Register here</a></p>
+      </div>
+    </main>
+    <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+      &copy; 2025 QuizCraft. All rights reserved.
+    </footer>
+    <style>
+      .windsurf-glow:focus {
+        outline: none;
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+        animation: windsurf-glow-anim 2.5s linear infinite;
+        border-color: transparent;
+      }
+      @keyframes windsurf-glow-anim {
+        0% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ff0080,
+            0 0 32px 8px #7928ca;
+        }
+        20% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #00ffb2,
+            0 0 32px 8px #00cfff;
+        }
+        40% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ffe600,
+            0 0 32px 8px #ff0080;
+        }
+        60% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #00ff1a,
+            0 0 32px 8px #00cfff;
+        }
+        80% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #7928ca,
+            0 0 32px 8px #ffe600;
+        }
+        100% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ff0080,
+            0 0 32px 8px #7928ca;
+        }
+      }
+      @keyframes gradient-move {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .animate-gradient-move {
+        background-size: 200% 200%;
+        animation: gradient-move 6s ease-in-out infinite;
+      }
+    </style>
+</body>
+</html>

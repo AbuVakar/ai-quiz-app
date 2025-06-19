@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizCraft - Play Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-[#18181b] via-[#2d193c] to-[#18181b] min-h-screen flex flex-col">
+  <header class="w-full bg-gradient-to-br from-[#18181b]/90 via-[#2d193c]/90 to-[#18181b]/90 backdrop-blur-xl shadow-xl py-4 px-8 flex items-center justify-between sticky top-0 z-30 rounded-b-2xl border-b border-fuchsia-900/40">
+    <div class="flex items-center gap-3">
+      <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" alt="QuizCraft Logo" class="w-10 h-10 rounded-full border-2 border-fuchsia-800 shadow"/>
+      <span class="text-2xl font-extrabold text-purple-300 tracking-tight drop-shadow select-none">QuizCraft</span>
+    </div>
+    <nav class="hidden md:flex gap-4 text-base items-center font-semibold">
+      <a href="/" class="flex items-center gap-1 text-purple-100 hover:text-yellow-300 px-3 py-2 rounded-lg transition"><i class="fas fa-home"></i> Home</a>
+      <a href="/quiz" class="flex items-center gap-1 text-yellow-300 bg-purple-700 px-3 py-2 rounded-lg font-bold shadow"><i class="fas fa-play"></i> Quiz</a>
+    </nav>
+  </header>
+  <main class="flex-1 flex flex-col items-center justify-center px-4">
+    <div class="bg-white bg-opacity-10 modern-shadow rounded-2xl p-10 w-full max-w-xl mt-12">
+      <h1 class="text-4xl font-bold mb-8 text-center text-yellow-400 drop-shadow">Play a Quiz</h1>
+      {% if not mcqs %}
+        <form method="POST" class="space-y-6" id="quiz-generate-form">
+          <textarea name="quiz_input" class="w-full border-2 border-purple-400 bg-gray-900 text-white rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow" rows="5" placeholder="Enter topic, text, or paragraph to generate quiz...">{{ input_text }}</textarea>
+          <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg p-3 font-bold text-lg hover:from-yellow-400 hover:to-yellow-600 transition-all shadow-lg">Generate Quiz</button>
+        </form>
+        <div id="quiz-loader" class="hidden flex flex-col items-center justify-center py-8">
+          <div class="loader mb-4">
+            <div class="w-16 h-16 border-8 border-yellow-400 border-t-purple-500 border-b-fuchsia-500 rounded-full animate-spin"></div>
+            <div class="absolute top-0 left-0 w-16 h-16 rounded-full animate-gradient-loader"></div>
+          </div>
+          <div class="text-yellow-300 text-lg font-bold animate-pulse">Generating your quiz...</div>
+        </div>
+        <style>
+          .loader { position: relative; }
+          @keyframes gradient-loader {
+            0% { box-shadow: 0 0 0 0 #fbbf24, 0 0 0 0 #a21caf, 0 0 0 0 #f472b6; }
+            50% { box-shadow: 0 0 24px 8px #fbbf24, 0 0 32px 12px #a21caf, 0 0 40px 16px #f472b6; }
+            100% { box-shadow: 0 0 0 0 #fbbf24, 0 0 0 0 #a21caf, 0 0 0 0 #f472b6; }
+          }
+          .animate-gradient-loader { animation: gradient-loader 1.5s infinite; }
+        </style>
+        <script>
+          // Show loader on quiz form submit
+          document.getElementById('quiz-generate-form').onsubmit = function() {
+            document.getElementById('quiz-generate-form').classList.add('hidden');
+            document.getElementById('quiz-loader').classList.remove('hidden');
+          };
+        </script>
+      {% else %}
+        <div id="quiz-app" class="w-full">
+          <div id="quiz-progress" class="mb-6">
+            <div class="text-center text-lg text-purple-200 font-semibold">
+              Question <span id="quiz-current">1</span> of <span id="quiz-total">{{ mcqs|length }}</span>
+            </div>
+            <div class="w-full h-2 bg-purple-900 rounded-full mt-2">
+              <div id="quiz-bar" class="h-2 bg-yellow-400 rounded-full transition-all duration-300" style="width:0%"></div>
+            </div>
+          </div>
+          <form id="quiz-form" class="space-y-6">
+            <div id="quiz-question" class="text-xl font-bold text-yellow-300 mb-4"></div>
+            <div id="quiz-options" class="space-y-3"></div>
+            <button type="button" id="next-btn" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg p-3 font-bold text-lg shadow-lg hover:from-yellow-400 hover:to-yellow-600 transition-all">Next</button>
+          </form>
+          <div id="quiz-result" class="hidden mt-8 text-center">
+            <div class="text-3xl font-extrabold text-green-400 mb-4">Quiz Complete!</div>
+            <div class="text-xl text-yellow-200 font-bold mb-2">Your Score: <span id="quiz-score"></span> / {{ mcqs|length }}</div>
+            <button onclick="window.location.href='/quiz'" class="mt-4 px-6 py-2 bg-purple-700 text-white rounded-lg font-bold hover:bg-yellow-400 hover:text-black transition">Try Another Quiz</button>
+          </div>
+        </div>
+        <!-- Result Modal -->
+        <div id="result-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 hidden">
+          <div class="bg-[#232136] rounded-2xl shadow-2xl max-w-sm w-full p-8 relative text-center">
+            <button id="close-result-modal" class="absolute top-3 right-3 text-yellow-400 text-2xl hover:text-red-400 transition"><i class="fas fa-times"></i></button>
+            <span id="result-emoji" class="text-5xl mb-2 block"></span>
+            <h2 id="result-title" class="text-2xl font-bold mb-2 text-yellow-400"></h2>
+            <div id="result-message" class="text-lg text-purple-200 mb-2"></div>
+            <div id="result-score" class="text-lg text-green-300 font-bold mb-4"></div>
+            <button onclick="window.location.href='/quiz'" class="mt-2 px-6 py-2 bg-purple-700 text-white rounded-lg font-bold hover:bg-yellow-400 hover:text-black transition">Try Again</button>
+          </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <script>
+          const mcqs = {{ mcqs|tojson }};
+          let current = 0;
+          let score = 0;
+          const total = mcqs.length;
+          const quizCurrent = document.getElementById('quiz-current');
+          const quizTotal = document.getElementById('quiz-total');
+          const quizBar = document.getElementById('quiz-bar');
+          const quizQuestion = document.getElementById('quiz-question');
+          const quizOptions = document.getElementById('quiz-options');
+          const nextBtn = document.getElementById('next-btn');
+          const quizForm = document.getElementById('quiz-form');
+          const quizResult = document.getElementById('quiz-result');
+          const quizScore = document.getElementById('quiz-score');
+          const resultModal = document.getElementById('result-modal');
+          const resultTitle = document.getElementById('result-title');
+          const resultMessage = document.getElementById('result-message');
+          const resultEmoji = document.getElementById('result-emoji');
+
+          function renderQuestion() {
+            quizCurrent.textContent = current + 1;
+            quizBar.style.width = ((current) / total * 100) + '%';
+            quizQuestion.textContent = mcqs[current].question;
+            quizOptions.innerHTML = '';
+            mcqs[current].options.forEach((opt, idx) => {
+              const id = 'opt' + idx;
+              const div = document.createElement('div');
+              div.innerHTML = `<label class='block cursor-pointer'>
+                <input type='radio' name='option' value='${opt}' class='hidden peer' required>
+                <div class='option-box peer-checked:bg-yellow-400 peer-checked:text-black bg-gray-800 text-white rounded-xl p-4 mb-2 border-2 border-transparent peer-checked:border-yellow-400 transition-all font-semibold hover:bg-purple-700 hover:text-yellow-200'>
+                  ${opt}
+                </div>
+              </label>`;
+              quizOptions.appendChild(div);
+            });
+            nextBtn.textContent = (current === total - 1) ? 'Finish' : 'Next';
+          }
+
+          quizForm.onsubmit = e => e.preventDefault();
+          nextBtn.onclick = function() {
+            const selected = quizForm.querySelector('input[name="option"]:checked');
+            if (!selected) {
+              quizOptions.classList.add('animate-shake');
+              setTimeout(() => quizOptions.classList.remove('animate-shake'), 500);
+              return;
+            }
+            if (selected.value === mcqs[current].answer) score++;
+            current++;
+            if (current < total) {
+              renderQuestion();
+            } else {
+              quizForm.classList.add('hidden');
+              quizResult.classList.remove('hidden');
+              quizBar.style.width = '100%';
+              quizCurrent.textContent = total;
+              quizScore.textContent = score;
+              setTimeout(() => showResultModal(score, total), 600); // show modal after short delay
+            }
+          };
+
+          function showResultModal(score, total) {
+            let percent = (score / total) * 100;
+            let title = '', msg = '', emoji = '';
+            if (percent === 100) {
+              title = 'Congratulations!';
+              msg = 'Perfect score! You nailed every question!';
+              emoji = '🎉';
+              confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            } else if (percent >= 90) {
+              title = 'Well Played!';
+              msg = 'Awesome job! You got most of them right.';
+              emoji = '👏';
+              confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else if (percent >= 60) {
+              title = 'Good Effort!';
+              msg = 'You did well! Keep practicing to improve even more.';
+              emoji = '👍';
+            } else {
+              title = 'Try Again!';
+              msg = 'Don\'t give up! Practice makes perfect. You can do it!';
+              emoji = '💪';
+            }
+            resultTitle.textContent = title;
+            resultMessage.textContent = msg;
+            resultEmoji.textContent = emoji;
+            document.getElementById('result-score').textContent = `Your Score: ${score} / ${total}`;
+            resultModal.classList.remove('hidden');
+          }
+
+          document.getElementById('close-result-modal').onclick = function() {
+            resultModal.classList.add('hidden');
+          };
+
+          // Initial render
+          renderQuestion();
+        </script>
+        <style>
+          .animate-shake { animation: shake 0.3s; }
+          @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+            100% { transform: translateX(0); }
+          }
+          .option-box { box-shadow: 0 2px 8px 0 rgba(80, 40, 120, 0.08); cursor: pointer; }
+          .option-box:hover { box-shadow: 0 4px 16px 0 rgba(255, 216, 0, 0.15); }
+        </style>
+      {% endif %}
+    </div>
+  </main>
+  <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+    &copy; 2025 QuizCraft. All rights reserved.
+  </footer>
+</body>
+</html> 

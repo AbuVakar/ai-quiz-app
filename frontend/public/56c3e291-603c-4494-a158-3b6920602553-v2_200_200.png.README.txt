@@ -1,0 +1,1 @@
+Image asset for frontend UI. Place original PNG here if not already present.

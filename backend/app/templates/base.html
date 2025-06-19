@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuizCraft{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/card.css') }}">
+    <script src="https://kit.fontawesome.com/8fa50ed00f.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: #18181b;
+      }
+
+      .footer-glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .hover-lift {
+        transition: transform 0.2s ease;
+      }
+      
+      .hover-lift:hover {
+        transform: translateY(-2px);
+      }
+
+      {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="mt-auto w-full footer-glass text-gray-300">
+        <div class="max-w-7xl mx-auto px-6 py-10">
+            <!-- Main Footer Content -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <!-- Brand & Description -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" 
+                             alt="QuizCraft Logo" 
+                             class="w-10 h-10 rounded-full border-2 border-fuchsia-800"/>
+                        <span class="text-2xl font-extrabold bg-gradient-to-r from-fuchsia-500 to-yellow-400 bg-clip-text text-transparent">QuizCraft</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Empowering learning through AI-powered quizzes. Create, learn, and grow with adaptive MCQ generation.</p>
+                    <!-- Social Links -->
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-300 hover:text-yellow-400 hover-lift">
+                            <i class="fa-brands fa-twitter text-3xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-yellow-400 hover-lift">
+                            <i class="fa-brands fa-github text-3xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-yellow-400 hover-lift">
+                            <i class="fa-brands fa-linkedin text-3xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-yellow-400 hover-lift">
+                            <i class="fa-brands fa-instagram text-3xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-yellow-400 font-semibold mb-3">Features</h3>
+                        <ul class="space-y-2">
+                            <li><a href="/mcq" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">MCQ Generator</a></li>
+                            <li><a href="/pdf" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">PDF to Quiz</a></li>
+                            <li><a href="/youtube" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">YouTube to Quiz</a></li>
+                            <li><a href="/quiz" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">Take Quiz</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-yellow-400 font-semibold mb-3">Company</h3>
+                        <ul class="space-y-2">
+                            <li><a href="/about" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">About</a></li>
+                            <li><a href="/contact" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">Contact</a></li>
+                            <li><a href="#" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">Privacy Policy</a></li>
+                            <li><a href="#" class="text-sm text-gray-400 hover:text-fuchsia-400 hover-lift inline-block">Terms of Use</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h3 class="text-yellow-400 font-semibold mb-3">Stay Updated</h3>
+                    <p class="text-sm text-gray-400 mb-4">Subscribe to our newsletter for the latest updates and features.</p>
+                    <form class="flex gap-2">
+                        <input type="email" 
+                               placeholder="Enter your email" 
+                               class="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-fuchsia-800/30 text-sm focus:outline-none focus:border-yellow-400/50 transition-colors"/>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-black font-semibold rounded-lg hover:from-yellow-400 hover:to-fuchsia-600 transition-all text-sm">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-500">&copy; {{ now.year }} QuizCraft. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-xs text-gray-500 hover:text-fuchsia-400">Privacy Policy</a>
+                    <a href="#" class="text-xs text-gray-500 hover:text-fuchsia-400">Terms of Service</a>
+                    <a href="#" class="text-xs text-gray-500 hover:text-fuchsia-400">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

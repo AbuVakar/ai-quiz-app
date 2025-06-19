@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Craft MCQ Generator</title>
+    <script>
+      tailwind.config = {
+        darkMode: 'class'
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='card.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+      body {
+        background: linear-gradient(120deg, #f3f4f6 0%, #f9fafb 100%);
+        color: #18181b;
+      }
+      html.dark body {
+        background: #18181b;
+        color: #e5e7eb;
+      }
+      .modern-shadow, .feature-card {
+        box-shadow: 0 6px 32px 0 rgba(80, 40, 120, 0.10), 0 1.5px 4px rgba(0,0,0,0.06);
+        border: 1.5px solid #ede9fe;
+      }
+      @media (prefers-color-scheme: dark) {
+        .feature-card {
+          border: none;
+          box-shadow: 0 10px 32px 0 rgba(80, 40, 120, 0.2), 0 2px 4px rgba(0,0,0,0.08);
+        }
+      }
+      .windsurf-glow {
+        position: relative;
+        z-index: 1;
+        background-clip: padding-box;
+        border-radius: 0.5rem;
+        transition: box-shadow 0.3s;
+      }
+      .windsurf-glow:focus {
+        outline: none;
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+        animation: windsurf-glow-anim 2.5s linear infinite;
+        border-color: transparent;
+      }
+      @keyframes windsurf-glow-anim {
+        0% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ff0080,
+            0 0 32px 8px #7928ca;
+        }
+        20% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #00ffb2,
+            0 0 32px 8px #00cfff;
+        }
+        40% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ffe600,
+            0 0 32px 8px #ff0080;
+        }
+        60% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #00ff1a,
+            0 0 32px 8px #00cfff;
+        }
+        80% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #7928ca,
+            0 0 32px 8px #ffe600;
+        }
+        100% {
+          box-shadow:
+            0 0 0 4px rgba(255,255,255,0.1),
+            0 0 16px 4px #ff0080,
+            0 0 32px 8px #7928ca;
+        }
+      }
+      .footer-tagline,
+      .footer-tagline:hover,
+      .footer-tagline:active,
+      .footer-tagline:focus {
+        background-image: linear-gradient(90deg, #ffe066, #ff5ec4, #a78bfa) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        color: transparent !important;
+        filter: none !important;
+        transition: none !important;
+      }
+      .footer-social i {
+        font-size: 1rem;
+        background: linear-gradient(90deg,
+          #ff0000,  /* Pure Red */
+          #ff8000,  /* Pure Orange */
+          #ffd700,  /* Pure Gold */
+          #00ff00,  /* Pure Green */
+          #00ffff,  /* Pure Cyan */
+          #0080ff,  /* Pure Blue */
+          #8000ff,  /* Pure Purple */
+          #ff0000   /* Back to Red */
+        );
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+        transition: all 0.3s ease;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+        animation: rainbow-pulse 6s linear infinite;
+      }
+      @keyframes rainbow-pulse {
+        0%, 100% {
+          background-position: 0% 50%;
+          filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6)) brightness(1);
+        }
+        50% {
+          background-position: 100% 50%;
+          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) brightness(1.2);
+        }
+      }
+      .footer-social:hover i {
+        transform: translateY(-2px) scale(1.1);
+        animation: rainbow-pulse 3s linear infinite;
+      }
+      @keyframes footer-gradient-move {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#18181b] via-[#2d193c] to-[#18181b] dark:bg-gradient-to-br dark:from-gray-100 dark:via-gray-300 dark:to-white text-gray-100 dark:text-gray-900">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-messages" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+          {% for category, message in messages %}
+            {% if 'Password Reset Link' in message %}
+              <div class="flash-msg mb-3 px-4 py-3 rounded-lg shadow-lg text-white font-semibold text-center relative overflow-hidden bg-blue-600">
+                <span>{{ message|safe }}</span>
+                <button onclick="this.parentElement.remove()" class="absolute top-2 right-3 text-xl text-white/80 hover:text-yellow-400 focus:outline-none">&times;</button>
+              </div>
+            {% else %}
+              <div class="flash-msg mb-3 px-4 py-3 rounded-lg shadow-lg text-white font-semibold text-center relative overflow-hidden
+                {% if category == 'success' %}bg-green-600{% elif category == 'danger' %}bg-red-600{% elif category == 'info' %}bg-blue-600{% else %}bg-gray-700{% endif %}">
+                <span>{{ message|safe }}</span>
+                <div class="absolute left-0 bottom-0 h-1 bg-white/70 animate-flash-progress" style="width:100%;"></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <style>
+          @keyframes flash-progress {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+          .animate-flash-progress {
+            animation: flash-progress 3.5s linear forwards;
+          }
+        </style>
+        <script>
+          setTimeout(function() {
+            document.querySelectorAll('#flash-messages .flash-msg').forEach(function(msg) {
+              if (!msg.innerHTML.includes('Password Reset Link')) {
+                msg.style.transition = 'opacity 0.5s';
+                msg.style.opacity = 0;
+                setTimeout(() => { msg.remove(); }, 600);
+              }
+            });
+          }, 3500);
+        </script>
+      {% endif %}
+    {% endwith %}
+    <header class="w-full bg-gradient-to-br from-[#18181b]/90 via-[#2d193c]/90 to-[#18181b]/90 dark:from-gray-100/90 dark:via-gray-300/90 dark:to-white/90 backdrop-blur-xl shadow-xl py-4 px-8 flex items-center justify-between sticky top-0 z-30 rounded-b-2xl border-b border-fuchsia-900/40 dark:border-gray-300">
+      <div class="flex items-center gap-3">
+        <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" alt="QuizCraft Logo" class="w-10 h-10 rounded-full border-2 border-fuchsia-800 dark:border-fuchsia-400 shadow"/>
+        <span class="text-2xl font-extrabold text-purple-300 dark:text-fuchsia-700 tracking-tight drop-shadow select-none">QuizCraft</span>
+        <span class="ml-2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-200 to-yellow-100 dark:from-fuchsia-900 dark:to-yellow-400 text-fuchsia-700 dark:text-yellow-200 font-semibold text-sm shadow-md flex items-center gap-1 animate-gradient-move">
+          <i class="fas fa-bolt text-yellow-400"></i> MCQ Generator
+        </span>
+      </div>
+      <nav class="hidden md:flex gap-2 md:gap-3 items-center text-sm md:text-base font-semibold">
+        <div class="flex gap-2 md:gap-3 items-center">
+          <a href="{{ url_for('main.index') }}" class="flex items-center gap-1 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 px-2 py-1 rounded-md transition"><i class="fas fa-home"></i> Home</a>
+          <a href="/about" class="flex items-center gap-1 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 px-2 py-1 rounded-md transition"><i class="fas fa-users"></i> About</a>
+          <a href="/contact" class="flex items-center gap-1 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 px-2 py-1 rounded-md transition"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
+        <a href="/pdf" class="flex items-center gap-1 text-white dark:text-gray-900 bg-gradient-to-r from-yellow-400 to-fuchsia-400 dark:bg-yellow-300 px-2 py-1 rounded-md font-bold hover:from-fuchsia-500 hover:to-yellow-400 hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition-all shadow"><i class="fas fa-file-pdf"></i> PDF to MCQ</a>
+        <a href="/youtube" class="flex items-center gap-1 text-white dark:text-gray-900 bg-gradient-to-r from-fuchsia-400 to-yellow-200 dark:bg-yellow-300 px-2 py-1 rounded-md font-bold hover:from-yellow-400 hover:to-fuchsia-500 hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition-all shadow"><i class="fab fa-youtube"></i> YouTube to MCQ</a>
+        {% if current_user.is_authenticated %}
+          <!-- Modern Gamification summary just before History link -->
+          <div class="flex items-center gap-4 mr-4">
+            <!-- Neon Glow Circular XP/Level Progress -->
+            <div class="relative flex flex-col items-center justify-center" style="width: 54px; height: 54px;">
+              <svg width="54" height="54">
+                <defs>
+                  <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#facc15" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#facc15" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="27" cy="27" r="22" stroke="#2e1065" dark:stroke="#f3f4f6" stroke-width="7" fill="url(#glow)" />
+                <circle cx="27" cy="27" r="22" stroke="#facc15" stroke-width="7" fill="none" stroke-dasharray="138.2" stroke-dashoffset="{{ 138.2 - (current_user.xp / (current_user.level * 100)) * 138.2 if current_user.level else 138.2 }}" stroke-linecap="round" style="filter: drop-shadow(0 0 6px #facc15);"/>
+              </svg>
+              <span class="absolute text-base font-extrabold text-yellow-300 dark:text-fuchsia-700 drop-shadow-lg">{{ current_user.xp }}</span>
+              <span class="absolute bottom-0 right-0 text-xs bg-yellow-400 dark:bg-fuchsia-700 text-black dark:text-white rounded-full px-1.5 font-bold shadow">Lv{{ current_user.level }}</span>
+            </div>
+            <!-- Badges (floating icon style) -->
+            <div class="flex flex-col items-center gap-1">
+              {% if current_user.badges and current_user.badges|length > 0 %}
+                <span class="text-[10px] text-purple-200 dark:text-fuchsia-900 font-semibold">Badges</span>
+                <div class="flex gap-1">
+                  {% for badge in current_user.badges %}
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-yellow-300 dark:bg-fuchsia-700 text-black dark:text-white rounded-full font-extrabold shadow-lg text-lg border-2 border-yellow-400 dark:border-fuchsia-700">🏅</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="text-gray-400 dark:text-gray-500 text-xs">No badges</span>
+              {% endif %}
+            </div>
+            <!-- Streak (gradient chip) -->
+            <span class="px-2 py-1 rounded-full bg-gradient-to-r from-pink-500 via-yellow-400 to-fuchsia-600 dark:from-fuchsia-700 dark:via-yellow-300 dark:to-pink-400 text-white dark:text-gray-900 font-bold text-xs shadow flex items-center gap-1">🔥 {{ current_user.streak }}</span>
+          </div>
+          <a href="{{ url_for('main.history') }}" class="flex items-center gap-1 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 px-2 py-1 rounded-md transition"><i class="fas fa-history"></i> History</a>
+          <div class="flex items-center gap-2 ml-2">
+            <a href="{{ url_for('main.profile') }}" class="inline-flex items-center justify-center w-9 h-9 rounded-full {% if current_user.profile_photo %}bg-white border-2 border-fuchsia-100 hover:border-fuchsia-200{% else %}bg-gradient-to-br from-fuchsia-600 to-purple-700 dark:from-yellow-300 dark:to-fuchsia-700 border-2 border-fuchsia-900 dark:border-fuchsia-700{% endif %} text-white dark:text-gray-900 font-bold text-lg shadow hover:scale-105 transition" title="Profile">
+              {% if current_user.profile_photo %}
+                <img src="{{ url_for('main.uploaded_file', filename=current_user.profile_photo) }}" alt="Profile" class="w-full h-full rounded-full object-cover"/>
+              {% else %}
+                {{ current_user.username[0]|upper }}
+              {% endif %}
+            </a>
+            <a href="{{ url_for('main.logout') }}" class="px-3 py-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 dark:bg-yellow-400 text-white dark:text-black font-bold rounded-lg shadow hover:from-fuchsia-500 hover:to-yellow-400 hover:bg-fuchsia-700 hover:text-white dark:hover:bg-fuchsia-700 dark:hover:text-white transition text-base">Logout</a>
+          </div>
+        {% else %}
+          <button id="loginBtn" class="ml-2 px-3 py-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 dark:bg-fuchsia-700 text-black dark:text-white font-bold rounded-lg shadow hover:from-fuchsia-500 hover:to-yellow-400 hover:bg-fuchsia-600 hover:text-white dark:hover:bg-yellow-400 dark:hover:text-black transition text-base">Login</button>
+          <button id="signupBtn" class="ml-2 px-3 py-2 bg-gradient-to-r from-fuchsia-400 to-yellow-200 dark:bg-yellow-400 text-white dark:text-black font-bold rounded-lg shadow hover:from-yellow-400 hover:to-fuchsia-500 hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition text-base">Sign Up</button>
+        {% endif %}
+      </div>
+      <!-- Mobile Hamburger -->
+      <div class="md:hidden flex items-center">
+        <button id="mobile-nav-toggle" class="text-yellow-300 dark:text-fuchsia-700 text-3xl focus:outline-none"><i class="fas fa-bars"></i></button>
+      </div>
+    </header>
+    <!-- Mobile Nav Drawer -->
+    <div id="mobile-nav" class="fixed top-0 left-0 w-full h-full bg-black/80 dark:bg-gray-200/80 z-40 hidden">
+      <div class="bg-gradient-to-b from-[#2d193c]/95 to-[#18181b]/95 dark:from-gray-100/95 dark:to-gray-300/95 w-64 h-full p-8 flex flex-col gap-6 shadow-2xl">
+        <div class="flex items-center gap-3 mb-6">
+          <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" class="w-8 h-8 rounded-full border-2 border-fuchsia-800 dark:border-fuchsia-400"/>
+          <span class="text-xl font-extrabold text-purple-100 dark:text-fuchsia-900">QuizCraft</span>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="flex items-center gap-2 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 font-semibold text-lg"><i class="fas fa-home"></i> Home</a>
+        <a href="/pdf" class="flex items-center gap-2 bg-purple-800 dark:bg-yellow-300 text-white dark:text-gray-900 px-3 py-2 rounded-lg font-bold hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition-all shadow"><i class="fas fa-file-pdf"></i> PDF to MCQ</a>
+        <a href="/youtube" class="flex items-center gap-2 bg-purple-800 dark:bg-yellow-300 text-white dark:text-gray-900 px-3 py-2 rounded-lg font-bold hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition-all shadow"><i class="fab fa-youtube"></i> YouTube to MCQ</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.history') }}" class="flex items-center gap-2 text-purple-100 dark:text-fuchsia-900 hover:text-yellow-300 dark:hover:text-fuchsia-700 font-semibold text-lg"><i class="fas fa-history"></i> History</a>
+          <div class="flex items-center gap-2 mt-4">
+            <a href="{{ url_for('main.profile') }}" class="inline-flex items-center justify-center w-9 h-9 rounded-full {% if current_user.profile_photo %}bg-white border-2 border-fuchsia-100 hover:border-fuchsia-200{% else %}bg-gradient-to-br from-fuchsia-600 to-purple-700 dark:from-yellow-300 dark:to-fuchsia-700 border-2 border-fuchsia-900 dark:border-fuchsia-700{% endif %} text-white dark:text-gray-900 font-bold text-lg shadow hover:scale-105 transition" title="Profile">
+              {% if current_user.profile_photo %}
+                <img src="{{ url_for('main.uploaded_file', filename=current_user.profile_photo) }}" alt="Profile" class="w-full h-full rounded-full object-cover"/>
+              {% else %}
+                {{ current_user.username[0]|upper }}
+              {% endif %}
+            </a>
+            <a href="{{ url_for('main.logout') }}" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 dark:bg-yellow-400 text-white dark:text-black font-bold rounded-lg shadow hover:from-fuchsia-500 hover:to-yellow-400 hover:bg-fuchsia-700 hover:text-white dark:hover:bg-fuchsia-700 dark:hover:text-white transition">Logout</a>
+          </div>
+        {% else %}
+          <button id="loginBtn" class="ml-0 px-4 py-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 dark:bg-fuchsia-700 text-black dark:text-white font-bold rounded-lg shadow hover:from-fuchsia-500 hover:to-yellow-400 hover:bg-fuchsia-600 hover:text-white dark:hover:bg-yellow-400 dark:hover:text-black transition">Login</button>
+          <button id="signupBtn" class="ml-2 px-4 py-2 bg-gradient-to-r from-fuchsia-400 to-yellow-200 dark:bg-yellow-400 text-white dark:text-black font-bold rounded-lg shadow hover:from-yellow-400 hover:to-fuchsia-500 hover:bg-yellow-400 hover:text-black dark:hover:bg-fuchsia-700 dark:hover:text-white transition">Sign Up</button>
+        {% endif %}
+        <button id="mobile-nav-close" class="mt-8 text-yellow-300 dark:text-fuchsia-700 text-2xl self-end"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <script>
+      // Mobile nav toggle
+      const mobileNav = document.getElementById('mobile-nav');
+      const openBtn = document.getElementById('mobile-nav-toggle');
+      const closeBtn = document.getElementById('mobile-nav-close');
+      openBtn.onclick = () => { mobileNav.classList.remove('hidden'); };
+      closeBtn.onclick = () => { mobileNav.classList.add('hidden'); };
+      // Close nav on background click
+      mobileNav.onclick = (e) => { if (e.target === mobileNav) mobileNav.classList.add('hidden'); };
+    </script>
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 hidden">
+      <div class="bg-[#232136] rounded-2xl shadow-2xl max-w-sm w-full p-8 relative">
+        <button id="closeLoginModal" class="absolute top-3 right-3 text-yellow-400 text-xl"><i class="fas fa-times"></i></button>
+        <h2 class="text-2xl font-bold mb-4 text-yellow-400 text-center">Login</h2>
+        <form method="POST" action="{{ url_for('main.login') }}" class="space-y-5">
+          {{ login_form.hidden_tag() }}
+          <div>
+            {{ login_form.username.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ login_form.username(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div>
+            {{ login_form.password.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ login_form.password(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+            <div class="text-right mt-1">
+              <a href="{{ url_for('main.forgot_password') }}" class="text-xs text-yellow-400 hover:underline">Forgot Password?</a>
+            </div>
+          </div>
+          <div class="flex items-center">
+            {{ login_form.remember_me(class="form-checkbox h-5 w-5 text-fuchsia-600") }}
+            {{ login_form.remember_me.label(class="ml-2 text-sm text-purple-200") }}
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="w-full bg-gradient-to-r from-fuchsia-600 to-purple-700 text-black font-extrabold rounded-xl p-3 text-lg shadow-xl hover:scale-105 hover:from-yellow-400 hover:to-fuchsia-600 transition-all">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Sign Up Modal -->
+    <div id="signupModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 hidden">
+      <div class="bg-[#232136] rounded-2xl shadow-2xl max-w-sm w-full p-8 relative">
+        <button id="closeSignupModal" class="absolute top-3 right-3 text-yellow-400 text-xl"><i class="fas fa-times"></i></button>
+        <h2 class="text-2xl font-bold mb-4 text-yellow-400 text-center">Sign Up</h2>
+        <form method="POST" action="{{ url_for('main.signup') }}" class="space-y-5">
+          {{ signup_form.hidden_tag() }}
+          <div>
+            {{ signup_form.username.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ signup_form.username(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div>
+            {{ signup_form.email.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ signup_form.email(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div>
+            {{ signup_form.password.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ signup_form.password(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div>
+            {{ signup_form.password2.label(class="block text-sm font-bold text-purple-200 mb-2") }}
+            {{ signup_form.password2(class="w-full border-2 border-fuchsia-500 bg-gray-900/80 text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow") }}
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="w-full bg-gradient-to-r from-fuchsia-600 to-purple-700 text-black font-extrabold rounded-xl p-3 text-lg shadow-xl hover:scale-105 hover:from-yellow-400 hover:to-fuchsia-600 transition-all">Sign Up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      // Login Modal logic
+      const loginModal = document.getElementById('loginModal');
+      const loginBtn = document.getElementById('loginBtn');
+      const closeLoginModal = document.getElementById('closeLoginModal');
+      loginBtn.onclick = () => { loginModal.classList.remove('hidden'); };
+      closeLoginModal.onclick = () => { loginModal.classList.add('hidden'); };
+      // Sign Up Modal logic
+      const signupModal = document.getElementById('signupModal');
+      const signupBtn = document.getElementById('signupBtn');
+      const closeSignupModal = document.getElementById('closeSignupModal');
+      signupBtn.onclick = () => { signupModal.classList.remove('hidden'); };
+      closeSignupModal.onclick = () => { signupModal.classList.add('hidden'); };
+      window.onclick = (event) => {
+        if (event.target === loginModal) loginModal.classList.add('hidden');
+        if (event.target === signupModal) signupModal.classList.add('hidden');
+      };
+    </script>
+    <!-- Modal auto-open logic
+    <script>
+      // Modal auto-open logic
+      window.onload = function() {
+        {% if show_login_modal %}
+          document.getElementById('loginModal').classList.remove('hidden');
+        {% elif show_signup_modal %}
+          document.getElementById('signupModal').classList.remove('hidden');
+        {% endif %}
+      };
+    </script> -->
+    <!-- Improved Decorative AI Quiz Banner Section (Better Space Management) -->
+    <section class="flex-1 max-w-7xl mx-auto px-4 py-4 flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-10 border-2 border-fuchsia-100 dark:border-none rounded-2xl shadow-xl bg-white/60 dark:bg-transparent">
+      <!-- Left: Feature Grid & Headline -->
+      <div class="md:w-7/12 flex flex-col justify-center space-y-8">
+        <h2 class="text-3xl md:text-5xl font-extrabold leading-tight text-white dark:text-gray-900 mb-2 text-center md:text-left">
+          Master Any Topic with <span class="text-yellow-400 dark:text-fuchsia-700">AI-Powered Quizzes</span>
+        </h2>
+        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+          <button class="bg-gradient-to-r from-yellow-400 to-fuchsia-300 text-black shadow-lg hover:from-fuchsia-500 hover:to-yellow-400 border-none px-6 py-3 rounded-lg font-semibold text-lg transition-transform duration-200 hover:scale-105 hover:shadow-2xl flex items-center gap-2" onclick="window.location.href='/quiz'">
+            <i class="fas fa-play"></i> Start Quiz
+          </button>
+          <button class="border border-[#2a2e4a] dark:border-fuchsia-700 px-6 py-3 rounded-lg font-normal text-lg hover:border-white dark:hover:border-fuchsia-900 transition flex items-center gap-2 shadow text-white dark:text-gray-900 bg-gradient-to-r from-fuchsia-200 to-yellow-100 dark:bg-yellow-200 transition-transform duration-200 hover:scale-105 hover:shadow-2xl hover:bg-white/20 dark:hover:bg-fuchsia-200/80 hover:brightness-110 cursor-pointer" onclick="window.location.href='/mcq'">
+            <i class="fas fa-magic"></i> Generate MCQs
+          </button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+          <div class="feature-card flex flex-col items-center space-y-2 bg-white/10 dark:bg-gray-200 rounded-xl p-4 shadow-lg text-gray-100 dark:text-gray-900 transition-transform duration-200 hover:scale-105 hover:shadow-2xl hover:bg-white/20 dark:hover:bg-gray-300/80 hover:brightness-110 cursor-pointer">
+            <img alt="Auto-Quiz Generation" class="w-10 h-10" src="https://storage.googleapis.com/a1aa/image/fdc8f4bf-2354-4124-3bf7-40bd85b556aa.jpg"/>
+            <h3 class="font-semibold text-base md:text-lg text-yellow-300 dark:text-fuchsia-700">Auto-Quiz</h3>
+            <p class="text-xs md:text-sm text-center">Create quizzes instantly on any subject</p>
+          </div>
+          <div class="feature-card flex flex-col items-center space-y-2 bg-white/10 dark:bg-gray-200 rounded-xl p-4 shadow-lg text-gray-100 dark:text-gray-900 transition-transform duration-200 hover:scale-105 hover:shadow-2xl hover:bg-white/20 dark:hover:bg-gray-300/80 hover:brightness-110 cursor-pointer">
+            <img alt="Adaptive Learning" class="w-10 h-10" src="https://storage.googleapis.com/a1aa/image/1f0baf60-a2b3-410b-469e-95699e23d5c4.jpg"/>
+            <h3 class="font-semibold text-base md:text-lg text-yellow-300 dark:text-fuchsia-700">Adaptive</h3>
+            <p class="text-xs md:text-sm text-center">Quizzes adjust to your knowledge level</p>
+          </div>
+          <div class="feature-card flex flex-col items-center space-y-2 bg-white/10 dark:bg-gray-200 rounded-xl p-4 shadow-lg text-gray-100 dark:text-gray-900 transition-transform duration-200 hover:scale-105 hover:shadow-2xl hover:bg-white/20 dark:hover:bg-gray-300/80 hover:brightness-110 cursor-pointer">
+            <img alt="Gamification" class="w-10 h-10 rounded-full" src="https://storage.googleapis.com/a1aa/image/aeb93aee-184f-4a6e-21a2-1bf226d74b0c.jpg"/>
+            <h3 class="font-semibold text-base md:text-lg text-yellow-300 dark:text-fuchsia-700">Gamification</h3>
+            <p class="text-xs md:text-sm text-center">Earn rewards and level up</p>
+          </div>
+          <div class="feature-card flex flex-col items-center space-y-2 bg-white/10 dark:bg-gray-200 rounded-xl p-4 shadow-lg text-gray-100 dark:text-gray-900 transition-transform duration-200 hover:scale-105 hover:shadow-2xl hover:bg-white/20 dark:hover:bg-gray-300/80 hover:brightness-110 cursor-pointer">
+            <img alt="Performance Analytics" class="w-10 h-10" src="https://storage.googleapis.com/a1aa/image/7a0dc222-2e63-4844-ae99-ca14bca7d612.jpg"/>
+            <h3 class="font-semibold text-base md:text-lg text-yellow-300 dark:text-fuchsia-700">Analytics</h3>
+            <p class="text-xs md:text-sm text-center">Track your progress and improvement</p>
+          </div>
+        </div>
+      </div>
+      <!-- Right: Illustration -->
+      <div class="md:w-5/12 flex justify-center md:justify-end mb-8 md:mb-0">
+        <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_4kx2q32n.json" background="transparent" speed="1" style="width: 420px; height: 420px; max-width: 100%;" loop autoplay></lottie-player>
+      </div>
+    </section>
+    <!-- Main Content: Generate MCQs Section removed as per user request -->
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-gray-300 dark:text-gray-900 text-base bg-gradient-to-t from-[#18181b] via-[#2d193c] to-transparent dark:from-gray-100 dark:via-gray-300 dark:to-white border-t border-fuchsia-900/40 dark:border-gray-300 flex flex-col items-center gap-2 mt-auto">
+      <div class="flex items-center gap-2 justify-center mb-2">
+        <span class="footer-tagline font-extrabold text-lg md:text-xl bg-gradient-to-r from-yellow-400 via-fuchsia-500 to-purple-700 dark:from-fuchsia-700 dark:via-yellow-400 dark:to-pink-400 bg-clip-text text-transparent drop-shadow-lg tracking-wide text-center" style="letter-spacing:0.5px;">
+          🚀 Smart Minds. 🎯 Smarter Quizzes. Made for You.
+        </span>
+      </div>
+      <div>&copy; 2025 QuizCraft. All rights reserved.</div>
+      <div class="flex gap-4 justify-center mt-1">
+        <a href="#" class="footer-social hover:text-yellow-400 dark:hover:text-fuchsia-700 transition"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="footer-social hover:text-yellow-400 dark:hover:text-fuchsia-700 transition"><i class="fab fa-github"></i></a>
+        <a href="#" class="footer-social hover:text-yellow-400 dark:hover:text-fuchsia-700 transition"><i class="fab fa-linkedin"></i></a>
+        <a href="#" class="footer-social hover:text-yellow-400 dark:hover:text-fuchsia-700 transition"><i class="fab fa-instagram"></i></a>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+    function showLoader() {
+      document.getElementById('mcqResults').innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="loader mb-4">
+            <div class="w-16 h-16 border-8 border-yellow-400 border-t-purple-500 border-b-fuchsia-500 rounded-full animate-spin"></div>
+          </div>
+          <div class="text-yellow-300 text-lg font-bold animate-pulse">Generating MCQs...</div>
+        </div>`;
+    }
+    function showConfetti() {
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#fbbf24', '#a21caf', '#f472b6', '#22d3ee', '#f59e42', '#fff']
+      });
+    }
+    document.getElementById('text-mcq-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const inputText = document.getElementById('inputText').value.trim();
+        if (!inputText) {
+            document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">Please enter some text!</div>';
+            return;
+        }
+        showLoader();
+        try {
+            const response = await fetch('/generate_mcqs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: inputText })
+            });
+            const data = await response.json();
+            if (data.mcqs && data.mcqs.length > 0) {
+                showConfetti();
+                let html = '<div class="text-2xl font-extrabold text-center text-green-400 mb-6 animate-bounce">🎉 MCQs Ready! 🎉</div>';
+                html += '<div class="space-y-4">';
+                data.mcqs.forEach((mcq, idx) => {
+                    html += `<div class='bg-gray-800 rounded-lg p-4'><div class='font-bold text-yellow-300 mb-2'>Q${idx+1}: ${mcq.question}</div><ul class='list-disc ml-6'>`;
+                    mcq.options.forEach(option => {
+                        html += `<li class='text-white'>${option}</li>`;
+                    });
+                    html += `</ul><div class='text-green-400 mt-2'>Answer: ${mcq.answer}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('mcqResults').innerHTML = html;
+            } else {
+                document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">No MCQs generated. Try different input.</div>';
+            }
+        } catch (error) {
+            document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">Error generating MCQs.</div>';
+        }
+    });
+    </script>
+    <style>
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .windsurf-glow:focus {
+      outline: none;
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,0.1),
+        0 0 16px 4px #ff0080,
+        0 0 32px 8px #7928ca;
+      animation: windsurf-glow-anim 2.5s linear infinite;
+      border-color: transparent;
+    }
+    @keyframes windsurf-glow-anim {
+      0% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+      }
+      20% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #00ffb2,
+          0 0 32px 8px #00cfff;
+      }
+      40% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ffe600,
+          0 0 32px 8px #ff0080;
+      }
+      60% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #00ff1a,
+          0 0 32px 8px #00cfff;
+      }
+      80% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #7928ca,
+          0 0 32px 8px #ffe600;
+      }
+      100% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+      }
+    }
+    @keyframes gradient-move {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+    .animate-gradient-move {
+      background-size: 200% 200%;
+      animation: gradient-move 6s ease-in-out infinite;
+    }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dark/Light mode toggle logic
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      function setTheme(mode) {
+        if (mode === 'dark') {
+          document.documentElement.classList.add('dark');
+          themeIcon.textContent = '☀️';
+        } else {
+          document.documentElement.classList.remove('dark');
+          themeIcon.textContent = '🌙';
+        }
+        localStorage.setItem('theme', mode);
+      }
+      // On load, set theme from localStorage or system
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        setTheme(saved);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+      }
+      if (themeToggle) {
+        themeToggle.onclick = function() {
+          const isDark = document.documentElement.classList.contains('dark');
+          setTheme(isDark ? 'light' : 'dark');
+        };
+      }
+    });
+    </script>
+</body>
+</html>

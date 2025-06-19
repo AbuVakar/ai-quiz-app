@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | QuizCraft</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+</head>
+<body class="min-h-screen bg-gradient-to-br from-yellow-50 via-fuchsia-50 to-white text-gray-900 flex flex-col">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-messages" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+        {% for category, message in messages %}
+          <div class="flash-msg mb-3 px-4 py-3 rounded-lg shadow-lg text-white font-semibold text-center relative overflow-hidden
+            {% if category == 'success' %}bg-green-600{% elif category == 'danger' %}bg-red-600{% elif category == 'info' %}bg-blue-600{% else %}bg-gray-700{% endif %}">
+            {{ message }}
+            <div class="absolute left-0 bottom-0 h-1 bg-white/70 animate-flash-progress" style="width:100%;"></div>
+          </div>
+        {% endfor %}
+      </div>
+      <style>
+        @keyframes flash-progress {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .animate-flash-progress {
+          animation: flash-progress 3.5s linear forwards;
+        }
+      </style>
+      <script>
+        setTimeout(function() {
+          document.querySelectorAll('#flash-messages .flash-msg').forEach(function(msg) {
+            msg.style.transition = 'opacity 0.5s';
+            msg.style.opacity = 0;
+            setTimeout(() => { msg.remove(); }, 600);
+          });
+        }, 3500);
+      </script>
+    {% endif %}
+  {% endwith %}
+  <header class="w-full py-6 bg-gradient-to-r from-yellow-400 to-fuchsia-600 shadow-lg flex items-center justify-center">
+    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
+      <i class="fas fa-envelope"></i> Contact <span class="text-fuchsia-200">QuizCraft</span>
+    </h1>
+  </header>
+  <main class="flex-1 max-w-3xl mx-auto px-4 py-10 space-y-12">
+    <section class="bg-white/80 rounded-2xl shadow-2xl p-8 border-t-4 border-yellow-400 animate-fade-in">
+      <h2 class="text-2xl font-bold text-fuchsia-700 mb-4 flex items-center gap-2"><i class="fas fa-paper-plane"></i> Get in Touch</h2>
+      <form method="POST" action="{{ url_for('main.contact') }}" class="space-y-6">
+        <div>
+          <label class="block text-sm font-bold text-fuchsia-700 mb-1" for="name">Name</label>
+          <input id="name" name="name" type="text" required class="w-full rounded-lg border border-fuchsia-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition" placeholder="Your Name"/>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-fuchsia-700 mb-1" for="email">Email</label>
+          <input id="email" name="email" type="email" required class="w-full rounded-lg border border-fuchsia-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition" placeholder="you@email.com"/>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-fuchsia-700 mb-1" for="message">Message</label>
+          <textarea id="message" name="message" rows="4" required class="w-full rounded-lg border border-fuchsia-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition" placeholder="How can we help you?"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-white font-bold py-3 rounded-lg shadow-lg hover:from-fuchsia-500 hover:to-yellow-400 transition-all text-lg flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </button>
+      </form>
+      <div class="mt-8 text-center text-gray-500">
+        <div class="mb-2"><i class="fas fa-envelope text-fuchsia-400"></i> support@quizcraft.com</div>
+        <div class="flex justify-center gap-4 mt-2">
+          <a href="#" class="text-fuchsia-600 hover:text-yellow-400 text-xl"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-fuchsia-600 hover:text-yellow-400 text-xl"><i class="fab fa-github"></i></a>
+          <a href="#" class="text-fuchsia-600 hover:text-yellow-400 text-xl"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+    </section>
+    <section class="animate-fade-in">
+      <h3 class="text-xl font-bold text-fuchsia-700 mb-4 flex items-center gap-2"><i class="fas fa-users"></i> Team Contacts</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="flex flex-col items-center bg-fuchsia-50 rounded-xl p-4 shadow">
+          <img src="/static/abu_vakar.jpg" class="w-16 h-16 rounded-full border-2 border-fuchsia-200 object-cover mb-2" alt="ABU VAKAR"/>
+          <div class="font-bold text-fuchsia-700">ABU VAKAR</div>
+          <div class="text-sm text-gray-500">Frontend Designer</div>
+          <div class="text-xs text-gray-400">abu.vakar@email.com</div>
+        </div>
+        <div class="flex flex-col items-center bg-yellow-50 rounded-xl p-4 shadow">
+          <img src="https://randomuser.me/api/portraits/men/85.jpg" class="w-16 h-16 rounded-full border-2 border-yellow-200 object-cover mb-2" alt="Aayush Puri"/>
+          <div class="font-bold text-yellow-500">Aayush Puri</div>
+          <div class="text-sm text-gray-500">Backend & NLP Engineer</div>
+          <div class="text-xs text-gray-400">aayush.puri@email.com</div>
+        </div>
+        <div class="flex flex-col items-center bg-fuchsia-50 rounded-xl p-4 shadow">
+          <img src="https://randomuser.me/api/portraits/men/44.jpg" class="w-16 h-16 rounded-full border-2 border-fuchsia-200 object-cover mb-2" alt="Deepak Shakya"/>
+          <div class="font-bold text-fuchsia-700">Deepak Shakya</div>
+          <div class="text-sm text-gray-500">Gamification Lead</div>
+          <div class="text-xs text-gray-400">deepak.shakya@email.com</div>
+        </div>
+        <div class="flex flex-col items-center bg-yellow-50 rounded-xl p-4 shadow">
+          <img src="https://randomuser.me/api/portraits/men/99.jpg" class="w-16 h-16 rounded-full border-2 border-yellow-200 object-cover mb-2" alt="Dhruv Kumar"/>
+          <div class="font-bold text-yellow-500">Dhruv Kumar</div>
+          <div class="text-sm text-gray-500">Documentation & Content</div>
+          <div class="text-xs text-gray-400">dhruv.kumar@email.com</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="w-full text-center py-4 text-gray-400 text-base bg-gradient-to-t from-yellow-50 via-fuchsia-50 to-transparent border-t border-yellow-200 mt-auto">
+    <div class="flex items-center gap-2 justify-center mb-2">
+      <a href="/" class="hover:text-fuchsia-600 font-bold">Home</a>
+      <span>|</span>
+      <a href="/about" class="hover:text-fuchsia-600 font-bold">About</a>
+      <span>|</span>
+      <a href="/contact" class="hover:text-fuchsia-600 font-bold">Contact</a>
+    </div>
+    <div>&copy; 2025 QuizCraft. All rights reserved.</div>
+  </footer>
+  <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: none; }
+    }
+    .animate-fade-in { animation: fade-in 1s cubic-bezier(.4,0,.2,1) both; }
+  </style>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizCraft - Generate MCQs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='card.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+  <style>
+    body {
+      background: #18181b !important;
+      color: #e5e7eb !important;
+    }
+    .modern-shadow {
+      box-shadow: 0 10px 32px 0 rgba(80, 40, 120, 0.2), 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .windsurf-glow {
+      position: relative;
+      z-index: 1;
+      background-clip: padding-box;
+      border-radius: 0.5rem;
+      transition: box-shadow 0.3s;
+    }
+    .windsurf-glow:focus {
+      outline: none;
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,0.1),
+        0 0 16px 4px #ff0080,
+        0 0 32px 8px #7928ca;
+      animation: windsurf-glow-anim 2.5s linear infinite;
+      border-color: transparent;
+    }
+    @keyframes windsurf-glow-anim {
+      0% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+      }
+      20% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #00ffb2,
+          0 0 32px 8px #00cfff;
+      }
+      40% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ffe600,
+          0 0 32px 8px #ff0080;
+      }
+      60% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #00ff1a,
+          0 0 32px 8px #00cfff;
+      }
+      80% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #7928ca,
+          0 0 32px 8px #ffe600;
+      }
+      100% {
+        box-shadow:
+          0 0 0 4px rgba(255,255,255,0.1),
+          0 0 16px 4px #ff0080,
+          0 0 32px 8px #7928ca;
+      }
+    }
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#18181b] via-[#2d193c] to-[#18181b]">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-messages" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+        {% for category, message in messages %}
+          <div class="flash-msg mb-3 px-4 py-3 rounded-lg shadow-lg text-white font-semibold text-center animate-fade-in-fast relative overflow-hidden
+            {% if category == 'success' %}bg-green-600{% elif category == 'danger' %}bg-red-600{% elif category == 'info' %}bg-blue-600{% else %}bg-gray-700{% endif %}">
+            {{ message }}
+            <div class="absolute left-0 bottom-0 h-1 bg-white/70 animate-flash-progress" style="width:100%;"></div>
+          </div>
+        {% endfor %}
+      </div>
+      <style>
+        @keyframes flash-progress {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .animate-flash-progress {
+          animation: flash-progress 2.5s linear forwards;
+        }
+      </style>
+      <script>
+        setTimeout(function() {
+          const flash = document.getElementById('flash-messages');
+          if (flash) {
+            flash.style.transition = 'opacity 0.5s';
+            flash.style.opacity = 0;
+            setTimeout(() => { flash.remove(); }, 600);
+          }
+        }, 2500);
+      </script>
+    {% endif %}
+  {% endwith %}
+  <!-- Header/Navbar -->
+  <header class="w-full bg-gradient-to-br from-[#18181b]/90 via-[#2d193c]/90 to-[#18181b]/90 backdrop-blur-xl shadow-xl py-4 px-8 flex items-center justify-between sticky top-0 z-30 rounded-b-2xl border-b border-fuchsia-900/40">
+    <div class="flex items-center gap-3">
+      <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" alt="QuizCraft Logo" class="w-10 h-10 rounded-full border-2 border-fuchsia-800 shadow"/>
+      <span class="text-2xl font-extrabold text-purple-300 tracking-tight drop-shadow select-none">QuizCraft</span>
+      <span class="hidden md:inline text-xs text-purple-100 bg-purple-900/80 px-2 py-1 rounded ml-2">MCQ Generator</span>
+    </div>
+    <nav class="hidden md:flex gap-4 text-base items-center font-semibold">
+      <a href="{{ url_for('main.index') }}" class="flex items-center gap-1 text-purple-100 hover:text-yellow-300 px-3 py-2 rounded-lg transition"><i class="fas fa-home"></i> Home</a>
+      <a href="/pdf" class="flex items-center gap-1 text-white bg-purple-700 px-3 py-2 rounded-lg font-bold hover:bg-yellow-400 hover:text-black transition-all shadow"><i class="fas fa-file-pdf"></i> PDF to MCQ</a>
+      <a href="/youtube" class="flex items-center gap-1 text-white bg-purple-700 px-3 py-2 rounded-lg font-bold hover:bg-yellow-400 hover:text-black transition-all shadow"><i class="fab fa-youtube"></i> YouTube to MCQ</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.history') }}" class="flex items-center gap-1 text-purple-100 hover:text-yellow-300 px-3 py-2 rounded-lg transition"><i class="fas fa-history"></i> History</a>
+        <div class="flex items-center gap-2 ml-4">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-700 text-white font-bold text-lg border-2 border-fuchsia-900 shadow">{{ current_user.username[0]|upper }}</span>
+          <a href="{{ url_for('main.logout') }}" class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-yellow-400 hover:text-black transition">Logout</a>
+        </div>
+      {% else %}
+        <button id="loginBtn" class="ml-4 px-4 py-2 bg-yellow-400 text-black font-bold rounded-lg shadow hover:bg-fuchsia-600 hover:text-white transition">Login</button>
+        <button id="signupBtn" class="ml-2 px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow hover:bg-yellow-400 hover:text-black transition">Sign Up</button>
+      {% endif %}
+    </nav>
+    <!-- Mobile Hamburger -->
+    <div class="md:hidden flex items-center">
+      <button id="mobile-nav-toggle" class="text-yellow-300 text-3xl focus:outline-none"><i class="fas fa-bars"></i></button>
+    </div>
+  </header>
+  <!-- Mobile Nav Drawer (optional, can be added if needed) -->
+  <main class="flex-1 flex flex-col items-center justify-center px-4">
+    <div class="bg-white bg-opacity-10 modern-shadow rounded-2xl p-10 w-full max-w-xl mt-12">
+      <h1 class="text-4xl font-bold mb-8 text-center text-yellow-400 drop-shadow">Generate MCQs from Text</h1>
+      <form id="text-mcq-form" class="space-y-6">
+          <textarea id="inputText" class="w-full border-2 border-purple-400 bg-gray-900 text-white rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition windsurf-glow" rows="6" placeholder="Paste your text here..."></textarea>
+          <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg p-3 font-bold text-lg hover:from-yellow-400 hover:to-yellow-600 transition-all shadow-lg">Generate MCQs</button>
+      </form>
+      <div id="mcqResults" class="mt-10"></div>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer class="w-full text-center py-6 text-gray-300 text-base bg-gradient-to-t from-[#18181b] via-[#2d193c] to-transparent border-t border-fuchsia-900/40 mt-8 flex flex-col items-center gap-2">
+    <div class="flex items-center gap-2 justify-center mb-2">
+      <img src="https://storage.googleapis.com/a1aa/image/cea65b79-129f-4388-41f6-fe474b125d7d.jpg" alt="QuizCraft Logo" class="w-7 h-7 rounded-full border-2 border-fuchsia-800 shadow"/>
+      <span class="font-bold text-purple-200">QuizCraft</span>
+    </div>
+    <div>&copy; 2025 QuizCraft. All rights reserved.</div>
+    <div class="flex gap-4 justify-center mt-1">
+      <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-github"></i></a>
+      <a href="#" class="hover:text-yellow-400 transition"><i class="fab fa-linkedin"></i></a>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+  function showLoader() {
+    document.getElementById('mcqResults').innerHTML = `
+      <div class="flex flex-col items-center justify-center py-8">
+        <div class="loader mb-4">
+          <div class="w-16 h-16 border-8 border-yellow-400 border-t-purple-500 border-b-fuchsia-500 rounded-full animate-spin"></div>
+        </div>
+        <div class="text-yellow-300 text-lg font-bold animate-pulse">Generating MCQs...</div>
+      </div>`;
+  }
+  function showConfetti() {
+    confetti({
+      particleCount: 120,
+      spread: 90,
+      origin: { y: 0.6 },
+      colors: ['#fbbf24', '#a21caf', '#f472b6', '#22d3ee', '#f59e42', '#fff']
+    });
+  }
+  function renderExportButtons(mcqs) {
+    return `
+      <div class='flex gap-4 mb-6 justify-end'>
+        <button id="exportPdfBtn" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg font-bold shadow hover:from-yellow-400 hover:to-yellow-600 transition-all">
+          <i class="fas fa-file-pdf"></i> Export as PDF
+        </button>
+        <button id="exportWordBtn" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold shadow hover:bg-yellow-400 hover:text-black transition-all">
+          <i class="fas fa-file-word"></i> Export as Word
+        </button>
+        <button id="copyClipboardBtn" class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-black rounded-lg font-bold shadow hover:bg-fuchsia-600 hover:text-white transition-all">
+          <i class="fas fa-copy"></i> Copy to Clipboard
+        </button>
+      </div>
+    `;
+  }
+  function mcqsToText(mcqs) {
+    let text = '';
+    mcqs.forEach((mcq, idx) => {
+      text += `Q${idx+1}: ${mcq.question}\n`;
+      mcq.options.forEach((option, i) => {
+        text += `  ${String.fromCharCode(65+i)}. ${option}\n`;
+      });
+      text += `Answer: ${mcq.answer}\n\n`;
+    });
+    return text;
+  }
+  document.getElementById('text-mcq-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const inputText = document.getElementById('inputText').value.trim();
+      if (!inputText) {
+          document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">Please enter some text!</div>';
+          return;
+      }
+      showLoader();
+      try {
+          const response = await fetch('/generate_mcqs', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: inputText })
+          });
+          const data = await response.json();
+          if (data.mcqs && data.mcqs.length > 0) {
+              showConfetti();
+              let html = renderExportButtons(data.mcqs);
+              html += '<div id="mcqExportContent">';
+              html += '<div class="text-2xl font-extrabold text-center text-green-400 mb-6 animate-bounce">🎉 MCQs Ready! 🎉</div>';
+              html += '<div class="space-y-4">';
+              data.mcqs.forEach((mcq, idx) => {
+                  html += `<div class='bg-gray-800 rounded-lg p-4'><div class='font-bold text-yellow-300 mb-2'>Q${idx+1}: ${mcq.question}</div><ul class='list-disc ml-6'>`;
+                  mcq.options.forEach(option => {
+                      html += `<li class='text-white'>${option}</li>`;
+                  });
+                  html += `</ul><div class='text-green-400 mt-2'>Answer: ${mcq.answer}</div></div>`;
+              });
+              html += '</div>';
+              html += '</div>';
+              document.getElementById('mcqResults').innerHTML = html;
+
+              // Export as PDF
+              document.getElementById('exportPdfBtn').onclick = function() {
+                const element = document.getElementById('mcqExportContent');
+                html2pdf().set({
+                  margin: 0.5,
+                  filename: 'mcqs.pdf',
+                  html2canvas: { scale: 2 },
+                  jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                }).from(element).save();
+              };
+              // Export as Word
+              document.getElementById('exportWordBtn').onclick = function() {
+                const element = document.getElementById('mcqExportContent');
+                // Get the HTML content
+                const html = element.innerHTML;
+                // Wrap in Word-compatible HTML
+                const wordHtml = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>MCQs</title></head><body>${html}</body></html>`;
+                const blob = new Blob([wordHtml], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'mcqs.doc';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 0);
+              };
+              // Copy to Clipboard
+              document.getElementById('copyClipboardBtn').onclick = function() {
+                const text = mcqsToText(data.mcqs);
+                navigator.clipboard.writeText(text).then(() => {
+                  const btn = document.getElementById('copyClipboardBtn');
+                  btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                  setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy to Clipboard'; }, 1500);
+                });
+              };
+          } else {
+              document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">No MCQs generated. Try different input.</div>';
+          }
+      } catch (error) {
+          document.getElementById('mcqResults').innerHTML = '<div class="text-red-400 font-semibold">Error generating MCQs.</div>';
+      }
+  });
+  </script>
+</body>
+</html>

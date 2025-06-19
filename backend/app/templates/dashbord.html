@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizCraft. Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='card.css') }}" />
+  <style>
+    :root {
+      --primary: #6a0dad;
+      --primary-light: #8a2be2;
+      --white: #ffffff;
+      --gray-light: #f5f5f5;
+      --gray-medium: #e0e0e0;
+      --gray-dark: #666666;
+      --text-dark: #333333;
+      --coin-gold: #ffd700;
+      --coin-silver: #c0c0c0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--gray-light); color: var(--text-dark); min-height: 100vh; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: var(--white); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+    .logo { font-size: 28px; font-weight: 700; }
+    /* ... (rest of CSS from frontend/dashbord.html) ... */
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 bg-white shadow">
+    <div class="text-2xl font-bold text-purple-700">QuizCraft.</div>
+    <div class="flex items-center gap-4">
+      <!-- Add navigation or user profile if needed -->
+    </div>
+    <nav class="flex gap-6 text-lg">
+      <a href="{{ url_for('main.index') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Home</a>
+      <a href="{{ url_for('main.mcq') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Quiz</a>
+      <a href="{{ url_for('main.show') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Library</a>
+      <a href="{{ url_for('main.dashboard') }}" class="text-purple-300 hover:text-yellow-400 font-semibold transition">Dashboard</a>
+    </nav>
+  </header>
+  <!-- Main Content (copy from frontend/dashbord.html as needed) -->
+  <!-- ... -->
+  <footer class="w-full text-center py-4 text-gray-400 text-sm bg-black bg-opacity-30 mt-10">
+    &copy; 2025 QuizCraft. All rights reserved.
+  </footer>
+</body>
+</html>
