@@ -1,0 +1,19 @@
+# Frontend Deployment Configuration for Render
+services:
+  - type: web
+    name: ai-quiz-frontend
+    env: static
+    buildCommand: |
+      npm install
+      npm run build
+    staticPublishPath: "./build"
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://ai-quiz-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
+    plan: free
+    autoDeploy: true
+    region: oregon
